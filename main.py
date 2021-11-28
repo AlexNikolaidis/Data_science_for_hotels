@@ -46,9 +46,7 @@ while 1:
           '2 -> [ALOS] Average Length Of Stay (per week)\n'
           '3 -> Cancellation rate (per month)\n4 -> Cancellation rate (per week)\n'
           '5 -> [ADR] Average Daily Rate (per month)\n6 -> [ADR] Average Daily Rate (per week)\n'
-          '7 -> Bookings (per month)\n8 -> Bookings (per week)\n'
-          '9 -> [DEN EXEI YLOPOIHTHEI] Bookings per customer type (per month)\n10 -> [DEN EXEI YLOPOIHTHEI] Bookings per customer type  (per week)\n'
-          '11 -> test')
+          '7 -> Bookings (per month)\n8 -> Bookings (per week)\n')
     text = int(input("Choose metric: "))
     if text == 0:
         break
