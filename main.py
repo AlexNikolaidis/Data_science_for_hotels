@@ -24,6 +24,8 @@ while 1:
     elif text == 2:
         metric1 = data[data['hotel'] == "City Hotel"]
         hotel = "City Hotel"
+    else:
+        continue
     # print(metric)
     print('0 -> Exit scipt\n1 -> 2015\n2 -> 2016\n3 -> 2017\n4 -> All years')
     text = int(input("Choose year: "))
@@ -38,6 +40,8 @@ while 1:
         metric = metric1[metric1['arrival_date_year'] == year]
     elif text == 4:
         metric = metric1
+    else:
+        continue
     print('0 -> Exit script\n1 -> [ALOS] Average Length Of Stay (per month)\n'
           '2 -> [ALOS] Average Length Of Stay (per week)\n'
           '3 -> Cancellation rate (per month)\n4 -> Cancellation rate (per week)\n'
@@ -57,7 +61,7 @@ while 1:
         if year == 2015:
             months_short = months_short_og[6:]
             months = months_og[6:]
-            weeks = weeks_og[6:]
+            weeks = weeks_og[26:]
         elif year == 2016:
             months_short = months_short_og
             months = months_og
@@ -65,13 +69,15 @@ while 1:
         elif year == 2017:
             months_short = months_short_og[:7]
             months = months_og[:7]
-            weeks = weeks_og[:7]
+            weeks = weeks_og[:35]
         else:
             months_short = months_short_og
             months = months_og
             weeks = weeks_og
 
+
         result = metric.groupby(temp)[['stays_in_weekend_nights', 'stays_in_week_nights']].mean()
+        print(len(result['stays_in_week_nights']))
         if text == 1:
             result = result.reindex(months)
 
@@ -115,7 +121,7 @@ while 1:
         if year == 2015:
             months_short = months_short_og[6:]
             months = months_og[6:]
-            weeks = weeks_og[6:]
+            weeks = weeks_og[26:]
         elif year == 2016:
             months_short = months_short_og
             months = months_og
@@ -123,7 +129,7 @@ while 1:
         elif year == 2017:
             months_short = months_short_og[:7]
             months = months_og[:7]
-            weeks = weeks_og[:7]
+            weeks = weeks_og[:35]
         else:
             months_short = months_short_og
             months = months_og
@@ -178,7 +184,7 @@ while 1:
         if year == 2015:
             months_short = months_short_og[6:]
             months = months_og[6:]
-            weeks = weeks_og[6:]
+            weeks = weeks_og[26:]
         elif year == 2016:
             months_short = months_short_og
             months = months_og
@@ -186,7 +192,7 @@ while 1:
         elif year == 2017:
             months_short = months_short_og[:7]
             months = months_og[:7]
-            weeks = weeks_og[:7]
+            weeks = weeks_og[:35]
         else:
             months_short = months_short_og
             months = months_og
@@ -233,7 +239,7 @@ while 1:
         if year == 2015:
             months_short = months_short_og[6:]
             months = months_og[6:]
-            weeks = weeks_og[6:]
+            weeks = weeks_og[26:]
         elif year == 2016:
             months_short = months_short_og
             months = months_og
@@ -241,7 +247,7 @@ while 1:
         elif year == 2017:
             months_short = months_short_og[:7]
             months = months_og[:7]
-            weeks = weeks_og[:7]
+            weeks = weeks_og[:35]
         else:
             months_short = months_short_og
             months = months_og
@@ -288,102 +294,5 @@ while 1:
                 ax.set_title(hotel + ': Bookings per week [All years]')
         plt.show()
 
-    elif text == 9 or text == 10:
-        if text == 9:
-            temp = 'arrival_date_month'
-        elif text == 10:
-            temp = 'arrival_date_week_number'
-
-        if year == 2015:
-            months_short = months_short_og[6:]
-            months = months_og[6:]
-            weeks = weeks_og[6:]
-        elif year == 2016:
-            months_short = months_short_og
-            months = months_og
-            weeks = weeks_og
-        elif year == 2017:
-            months_short = months_short_og[:7]
-            months = months_og[:7]
-            weeks = weeks_og[:7]
-        else:
-            months_short = months_short_og
-            months = months_og
-            weeks = weeks_og
-
-        if text == 9:
-            # booking_count = [0] * len(months_short)
-            booking_count = np.array([[0]*4]*len(months_short))
-            for i, z in enumerate(months):
-                result = metric[metric[temp] == z]
-                booking_count[i] = result.groupby(['customer_type'])['hotel'].count()
-        elif text == 10:
-            # booking_count = [0] * len(weeks)
-            booking_count = np.array([[0] * 4] * len(weeks))
-            for i, z in enumerate(weeks):
-                result = metric[metric[temp] == z]
-                booking_count[i] = result.groupby(['customer_type'])['hotel'].count()
-
-        print(booking_count)
-
-        fig, ax = plt.subplots()
-        ax.pie(booking_count[0], radius=3, center=(4, 4),
-                wedgeprops={"linewidth": 1, "edgecolor": "white"}, frame=True)
-        plt.show()
-        # if text == 9:
-        #     x = np.arange(len(months_short))
-        # elif text == 10:
-        #     x = np.arange(len(weeks))
-        #
-        # width = 0.8
-        # fig, ax = plt.subplots()
-        # rects1 = ax.bar(x - width / 2, booking_count['stays_in_weekend_nights'], width, label='average weekend nights stayed')
-        # rects2 = ax.bar(x + width / 2, booking_count['stays_in_week_nights'], width, label='average week nights stayed')
-        # plt.xlabel(temp)
-        # plt.ylabel('Count')
-        # ax.legend()
-        # if text == 9:
-        #     ax.set_xticks(x, months_short)
-        #     if year != 0:
-        #         ax.set_title(hotel + ': Bookings per customer type per month [' + str(year) + ']')
-        #     else:
-        #         ax.set_title(hotel + ': Bookings per customer type per month [All years]')
-        # elif text == 10:
-        #     ax.set_xticks(x, weeks)
-        #     if year != 0:
-        #         ax.set_title(hotel + ': Bookings per customer type per week [' + str(year) + ']')
-        #     else:
-        #         ax.set_title(hotel + ': Bookings per customer type per week [All years]')
-        # plt.show()
-
-    elif text == 11:
-
-        # gia to 2016 pigaino kathe mera kai metrao posa domatia typou A eixan kleistei
-
-        # result_july = metric[metric['arrival_date_month'] == 'July']
-        result_august = metric[metric['arrival_date_month'] == 'August']
-
-        # result1j = result_july[result_july['arrival_date_day_of_month'] == 1]
-        minoulides = np.linspace(1, 31, 31)
-        minoulides = minoulides.astype('int32')
-        rooms_august = [0]*31
-
-        print(minoulides)
-
-        for i in minoulides:
-            result1a = result_august[result_august['arrival_date_day_of_month'] == i]
-            rooms_august[i-1] = result1a[result_august['assigned_room_type'] == 'A']['lead_time'].count()
-
-        # arrival_date_day_of_month
-
-        # rooms_july = result1j.groupby('assigned_room_type').count()
-
-        print(rooms_august)
-
-        x = np.arange(31)
-
-        fig, ax = plt.subplots()
-
-        width = 0.8
-        ax.bar(x, rooms_august, width, label='ADR')
-        plt.show()
+    else:
+        continue
