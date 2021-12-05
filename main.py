@@ -284,25 +284,30 @@ while 1:
 
 
     elif text == 9:
+        categorical = ['country', 'customer_type', 'market_segment', 'distribution_channel',
+                       'reserved_room_type', 'assigned_room_type']
 
-        X = metric[['arrival_date_week_number', 'stays_in_weekend_nights', 'stays_in_week_nights', 'adults', 'children', 'adr']].values  # .astype(float)
+        for temp in categorical:
+            metric.loc[:, temp] = metric.loc[:, temp].astype('category')
+            metric.loc[:, temp] = metric.loc[:, temp].cat.codes
 
+        X = metric[['arrival_date_week_number', 'stays_in_weekend_nights', 'stays_in_week_nights', 'adults',
+                    'children', 'adr', 'country', 'customer_type', 'market_segment', 'distribution_channel',
+                    'reserved_room_type', 'assigned_room_type']].values  # .astype(float)
         y = metric['is_canceled'].values
-
         X = preprocessing.StandardScaler().fit(X).transform(X.astype(float))
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=4)
 
         k = 4
-        for i in range(7):
-            # Train Model and Predict
-            neigh = KNeighborsClassifier(n_neighbors=k).fit(X_train, y_train)
-            yhat = neigh.predict(X_test)
-            yhat[0:5]
-            print("Train set Accuracy [k = " + str(k) + "]: ", metrics.accuracy_score(y_train, neigh.predict(X_train)))
-            print("Test set Accuracy: [k = " + str(k) + "]: ", metrics.accuracy_score(y_test, yhat))
-            k += 1
-
+        # Train Model and Predict
+        neigh = KNeighborsClassifier(n_neighbors=k).fit(X_train, y_train)
+        yhat = neigh.predict(X_test)
+        train_accuracy = metrics.accuracy_score(y_train, neigh.predict(X_train))
+        test_accuracy = metrics.accuracy_score(y_test, yhat)
+        print("For booking cancellation prediction:")
+        print("Train set Accuracy [k = " + str(k) + "]: ", train_accuracy)
+        print("Test set Accuracy: [k = " + str(k) + "]: ", test_accuracy)
 
     else:
         continue
