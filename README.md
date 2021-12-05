@@ -11,8 +11,6 @@ TO DO:
 
 -> Correlate cancellation rate with other data
 
--> συσχέτιση τύπου δωματίου με κατηγορία πελάτη
-
 -> Correlate room type with customer type
 
 -> Booking per customer type
