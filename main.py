@@ -3,6 +3,10 @@ import io
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn import preprocessing
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
 
 data = pd.read_csv('hotel_booking.csv')
 sns.set_style("darkgrid")
@@ -46,7 +50,8 @@ while 1:
           '2 -> [ALOS] Average Length Of Stay (per week)\n'
           '3 -> Cancellation rate (per month)\n4 -> Cancellation rate (per week)\n'
           '5 -> [ADR] Average Daily Rate (per month)\n6 -> [ADR] Average Daily Rate (per week)\n'
-          '7 -> Bookings (per month)\n8 -> Bookings (per week)\n')
+          '7 -> Bookings (per month)\n8 -> Bookings (per week)\n'
+          '9 -> ML test\n')
     text = int(input("Choose metric: "))
     if text == 0:
         break
@@ -78,10 +83,9 @@ while 1:
         print(len(result['stays_in_week_nights']))
         if text == 1:
             result = result.reindex(months)
-
-        if text == 1:
             x = np.arange(len(months_short))
-        elif text == 2:
+
+        if text == 2:
             x = np.arange(len(weeks))
 
         fig, ax = plt.subplots()
@@ -140,16 +144,11 @@ while 1:
             cancellation_rate = [0] * len(months_short)
             for i, z in enumerate(months):
                 cancellation_rate[i] = 100 * (result_cancel.loc[z].iat[0] / result_total.loc[z].iat[0])
+            x = np.arange(len(months_short))
         elif text == 4:
             cancellation_rate = [0] * len(weeks)
             for i, z in enumerate(weeks):
                 cancellation_rate[i] = 100 * (result_cancel.loc[z].iat[0] / result_total.loc[z].iat[0])
-
-
-
-        if text == 3:
-            x = np.arange(len(months_short))
-        elif text == 4:
             x = np.arange(len(weeks))
 
         width = 0.8
@@ -199,11 +198,9 @@ while 1:
         result = metric.groupby(temp)[['adr']].mean()  # ypologismos adr me ton mina / vdomada
         if text == 5:
             result = result.reindex(months)
-        # print(result)
-
-        if text == 5:
             x = np.arange(len(months_short))
-        elif text == 6:
+
+        if text == 6:
             x = np.arange(len(weeks))
 
         fig, ax = plt.subplots()
@@ -252,24 +249,17 @@ while 1:
             weeks = weeks_og
 
         result = metric.groupby(temp)[['lead_time']].count()
-        if text == 7:
-            result = result.reindex(months)
 
         if text == 7:
+            result = result.reindex(months)
             booking_count = [0] * len(months_short)
             for i, z in enumerate(months):
                 booking_count[i] = result.loc[z].iat[0]
+            x = np.arange(len(months_short))
         elif text == 8:
             booking_count = [0] * len(weeks)
             for i, z in enumerate(weeks):
                 booking_count[i] = result.loc[z].iat[0]
-
-
-
-
-        if text == 7:
-            x = np.arange(len(months_short))
-        elif text == 8:
             x = np.arange(len(weeks))
 
         width = 0.8
@@ -291,6 +281,28 @@ while 1:
             else:
                 ax.set_title(hotel + ': Bookings per week [All years]')
         plt.show()
+
+
+    elif text == 9:
+
+        X = metric[['arrival_date_week_number', 'stays_in_weekend_nights', 'stays_in_week_nights', 'adults', 'children', 'adr']].values  # .astype(float)
+
+        y = metric['is_canceled'].values
+
+        X = preprocessing.StandardScaler().fit(X).transform(X.astype(float))
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=4)
+
+        k = 4
+        for i in range(7):
+            # Train Model and Predict
+            neigh = KNeighborsClassifier(n_neighbors=k).fit(X_train, y_train)
+            yhat = neigh.predict(X_test)
+            yhat[0:5]
+            print("Train set Accuracy [k = " + str(k) + "]: ", metrics.accuracy_score(y_train, neigh.predict(X_train)))
+            print("Test set Accuracy: [k = " + str(k) + "]: ", metrics.accuracy_score(y_test, yhat))
+            k += 1
+
 
     else:
         continue
