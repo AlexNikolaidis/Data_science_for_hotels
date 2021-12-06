@@ -51,7 +51,7 @@ while 1:
           '3 -> Cancellation rate (per month)\n4 -> Cancellation rate (per week)\n'
           '5 -> [ADR] Average Daily Rate (per month)\n6 -> [ADR] Average Daily Rate (per week)\n'
           '7 -> Bookings (per month)\n8 -> Bookings (per week)\n'
-          '9 -> ML test\n')
+          '9 -> KNN test\n10 -> Decision tree test')
     text = int(input("Choose metric: "))
     if text == 0:
         break
@@ -308,6 +308,9 @@ while 1:
         print("For booking cancellation prediction:")
         print("Train set Accuracy [k = " + str(k) + "]: ", train_accuracy)
         print("Test set Accuracy: [k = " + str(k) + "]: ", test_accuracy)
+
+    elif text == 10:
+
 
     else:
         continue
