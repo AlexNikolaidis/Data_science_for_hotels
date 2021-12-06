@@ -1,17 +1,17 @@
 import numpy as np
-import io
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn import preprocessing
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
+from sklearn import preprocessing
 
 data = pd.read_csv('hotel_booking.csv')
 sns.set_style("darkgrid")
 months_og = ['January', 'February', 'March', 'April', 'May', 'June',
-          'July', 'August', 'September', 'October', 'November', 'December']
+             'July', 'August', 'September', 'October', 'November', 'December']
 months_short_og = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
 year = 0
 weeks_og = np.linspace(1, 53, 53)
@@ -51,7 +51,7 @@ while 1:
           '3 -> Cancellation rate (per month)\n4 -> Cancellation rate (per week)\n'
           '5 -> [ADR] Average Daily Rate (per month)\n6 -> [ADR] Average Daily Rate (per week)\n'
           '7 -> Bookings (per month)\n8 -> Bookings (per week)\n'
-          '9 -> KNN test\n10 -> Decision tree test')
+          '9 -> [Cancellation Prediction] K-Nearest Neighbor\n10 -> [Cancellation Prediction] Decision tree')
     text = int(input("Choose metric: "))
     if text == 0:
         break
@@ -94,8 +94,6 @@ while 1:
         ax.bar(x, result['stays_in_week_nights'], width, label='average length of stay (week nights)')
         ax.bar(x, result['stays_in_weekend_nights'], width, label='average length of stay (weekend nights)',
                bottom=result['stays_in_week_nights'])
-        # rects1 = ax.bar(x - width / 2, result['stays_in_weekend_nights'], width, label='average weekend nights stayed')
-        # rects2 = ax.bar(x + width / 2, result['stays_in_week_nights'], width, label='average week nights stayed')
         plt.xlabel(temp)
         plt.ylabel('Length of stay')
         ax.legend()
@@ -282,8 +280,7 @@ while 1:
                 ax.set_title(hotel + ': Bookings per week [All years]')
         plt.show()
 
-
-    elif text == 9:
+    elif text == 9 or text == 10:
         categorical = ['country', 'customer_type', 'market_segment', 'distribution_channel',
                        'reserved_room_type', 'assigned_room_type']
 
@@ -295,22 +292,34 @@ while 1:
                     'children', 'adr', 'country', 'customer_type', 'market_segment', 'distribution_channel',
                     'reserved_room_type', 'assigned_room_type']].values  # .astype(float)
         y = metric['is_canceled'].values
-        X = preprocessing.StandardScaler().fit(X).transform(X.astype(float))
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=4)
+        if text == 9:
+            # After tests the max accuracy of ~0.8135 can be achieved with a k value of 4
+            X = preprocessing.StandardScaler().fit(X).transform(X.astype(float))
 
-        k = 4
-        # Train Model and Predict
-        neigh = KNeighborsClassifier(n_neighbors=k).fit(X_train, y_train)
-        yhat = neigh.predict(X_test)
-        train_accuracy = metrics.accuracy_score(y_train, neigh.predict(X_train))
-        test_accuracy = metrics.accuracy_score(y_test, yhat)
-        print("For booking cancellation prediction:")
-        print("Train set Accuracy [k = " + str(k) + "]: ", train_accuracy)
-        print("Test set Accuracy: [k = " + str(k) + "]: ", test_accuracy)
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=4)
 
-    elif text == 10:
+            k = 4
+            # Train Model and Predict
+            neigh = KNeighborsClassifier(n_neighbors=k).fit(X_train, y_train)
+            yhat = neigh.predict(X_test)
+            train_accuracy = metrics.accuracy_score(y_train, neigh.predict(X_train))
+            test_accuracy = metrics.accuracy_score(y_test, yhat)
+            print("For booking cancellation prediction:")
+            print("Train set Accuracy [k = " + str(k) + "]: ", train_accuracy)
+            print("Test set Accuracy: [k = " + str(k) + "]: ", test_accuracy)
 
+        elif text == 10:
+            # After tests the max accuracy of ~0.8193 can be achieved with a max depth of 11
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=4)
+            cancel_tree = DecisionTreeClassifier(criterion="entropy", max_depth=11)
+
+            cancel_tree.fit(X_train, y_train)
+            pred_tree = cancel_tree.predict(X_test)
+
+            print(pred_tree[0:25])
+            print(y_test[0:25])
+            print("DecisionTrees's Accuracy: ", metrics.accuracy_score(y_test, pred_tree))
 
     else:
         continue
