@@ -36,16 +36,29 @@ while 1:
     if text == 1:
         year = 2015
         metric = metric1[metric1['arrival_date_year'] == year]
+        months_short = months_short_og[6:]
+        months = months_og[6:]
+        weeks = weeks_og[26:]
     elif text == 2:
         year = 2016
         metric = metric1[metric1['arrival_date_year'] == year]
+        months_short = months_short_og
+        months = months_og
+        weeks = weeks_og
     elif text == 3:
         year = 2017
         metric = metric1[metric1['arrival_date_year'] == year]
+        months_short = months_short_og[:7]
+        months = months_og[:7]
+        weeks = weeks_og[:35]
     elif text == 4:
         metric = metric1
+        months_short = months_short_og
+        months = months_og
+        weeks = weeks_og
     else:
         continue
+
     print('0 -> Exit script\n1 -> [ALOS] Average Length Of Stay (per month)\n'
           '2 -> [ALOS] Average Length Of Stay (per week)\n'
           '3 -> Cancellation rate (per month)\n4 -> Cancellation rate (per week)\n'
@@ -53,31 +66,15 @@ while 1:
           '7 -> Bookings (per month)\n8 -> Bookings (per week)\n'
           '9 -> [Cancellation Prediction] K-Nearest Neighbor\n10 -> [Cancellation Prediction] Decision tree')
     text = int(input("Choose metric: "))
+
+    if text%2:
+        temp = 'arrival_date_month'
+    else:
+        temp = 'arrival_date_week_number'
+
     if text == 0:
         break
     elif text == 1 or text == 2:
-        if text == 1:
-            temp = 'arrival_date_month'
-        elif text == 2:
-            temp = 'arrival_date_week_number'
-
-        if year == 2015:
-            months_short = months_short_og[6:]
-            months = months_og[6:]
-            weeks = weeks_og[26:]
-        elif year == 2016:
-            months_short = months_short_og
-            months = months_og
-            weeks = weeks_og
-        elif year == 2017:
-            months_short = months_short_og[:7]
-            months = months_og[:7]
-            weeks = weeks_og[:35]
-        else:
-            months_short = months_short_og
-            months = months_og
-            weeks = weeks_og
-
 
         result = metric.groupby(temp)[['stays_in_weekend_nights', 'stays_in_week_nights']].mean()
         print(len(result['stays_in_week_nights']))
@@ -113,27 +110,6 @@ while 1:
         plt.show()
 
     elif text == 3 or text == 4:
-        if text == 3:
-            temp = 'arrival_date_month'
-        elif text == 4:
-            temp = 'arrival_date_week_number'
-
-        if year == 2015:
-            months_short = months_short_og[6:]
-            months = months_og[6:]
-            weeks = weeks_og[26:]
-        elif year == 2016:
-            months_short = months_short_og
-            months = months_og
-            weeks = weeks_og
-        elif year == 2017:
-            months_short = months_short_og[:7]
-            months = months_og[:7]
-            weeks = weeks_og[:35]
-        else:
-            months_short = months_short_og
-            months = months_og
-            weeks = weeks_og
 
         result_cancel = metric.groupby(temp)[['is_canceled']].sum()
         result_total = metric.groupby(temp)[['lead_time']].count()
@@ -171,28 +147,6 @@ while 1:
 
     elif text == 5 or text == 6:
 
-        if text == 5:
-            temp = 'arrival_date_month'
-        elif text == 6:
-            temp = 'arrival_date_week_number'
-
-        if year == 2015:
-            months_short = months_short_og[6:]
-            months = months_og[6:]
-            weeks = weeks_og[26:]
-        elif year == 2016:
-            months_short = months_short_og
-            months = months_og
-            weeks = weeks_og
-        elif year == 2017:
-            months_short = months_short_og[:7]
-            months = months_og[:7]
-            weeks = weeks_og[:35]
-        else:
-            months_short = months_short_og
-            months = months_og
-            weeks = weeks_og
-
         result = metric.groupby(temp)[['adr']].mean()  # ypologismos adr me ton mina / vdomada
         if text == 5:
             result = result.reindex(months)
@@ -224,27 +178,6 @@ while 1:
         plt.show()
 
     elif text == 7 or text == 8:
-        if text == 7:
-            temp = 'arrival_date_month'
-        elif text == 8:
-            temp = 'arrival_date_week_number'
-
-        if year == 2015:
-            months_short = months_short_og[6:]
-            months = months_og[6:]
-            weeks = weeks_og[26:]
-        elif year == 2016:
-            months_short = months_short_og
-            months = months_og
-            weeks = weeks_og
-        elif year == 2017:
-            months_short = months_short_og[:7]
-            months = months_og[:7]
-            weeks = weeks_og[:35]
-        else:
-            months_short = months_short_og
-            months = months_og
-            weeks = weeks_og
 
         result = metric.groupby(temp)[['lead_time']].count()
 
@@ -294,6 +227,7 @@ while 1:
         y = metric['is_canceled'].values
 
         if text == 9:
+
             # After tests the max accuracy of ~0.8135 can be achieved with a k value of 4
             X = preprocessing.StandardScaler().fit(X).transform(X.astype(float))
 
@@ -310,6 +244,7 @@ while 1:
             print("Test set Accuracy: [k = " + str(k) + "]: ", test_accuracy)
 
         elif text == 10:
+
             # After tests the max accuracy of ~0.8193 can be achieved with a max depth of 11
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=4)
             cancel_tree = DecisionTreeClassifier(criterion="entropy", max_depth=11)
